@@ -54,11 +54,14 @@ jobs:
             test -w "$HOME"
             test -x /dockerstartup/custom_startup.sh
             test -x /dockerstartup/set_user_permission.sh
-            for app in thunderbird nextcloud firefox google-chrome; do command -v "$app"; done
+            for app in thunderbird nextcloud firefox google-chrome tabby chatgpt claude-desktop libreoffice; do command -v "$app"; done
             cat /etc/workspace-app-versions.txt
             test -x /home/kasm-default-profile/Desktop/thunderbird.desktop
             test -x /home/kasm-default-profile/Desktop/nextcloud.desktop
             test -x /home/kasm-default-profile/Desktop/google-chrome.desktop
+            for app in tabby chatgpt claude-desktop; do
+              test -x "/home/kasm-default-profile/Desktop/kasm-$app.desktop"
+            done
             locale -a | grep -qi "de_DE.utf8"
           '
       - name: Record image versions
@@ -81,6 +84,47 @@ jobs:
           done
           echo 'Desktop applications did not start within 120 seconds' >&2
           exit 1
+      - name: Verify LibreOffice document conversion
+        run: |
+          docker run --rm --entrypoint bash workspace-check:local -euc '
+            printf "LibreOffice Test\n" > /tmp/office-smoke.txt
+            timeout 45 libreoffice -env:UserInstallation=file:///tmp/office-smoke-profile --headless --convert-to pdf --outdir /tmp /tmp/office-smoke.txt
+            test -s /tmp/office-smoke.pdf
+          '
+      - name: Verify Tabby and AI desktop windows
+        run: |
+          docker run -d --name extra-app-smoke --shm-size=512m -e VNC_PW=ci-smoke-only workspace-check:local
+          trap 'docker logs --tail 100 extra-app-smoke; docker rm -f extra-app-smoke' EXIT
+          docker exec extra-app-smoke timeout 120 /usr/bin/desktop_ready
+          for app in tabby chatgpt claude-desktop; do
+            docker exec -e SMOKE_APP="$app" extra-app-smoke bash -euc '
+              "$SMOKE_APP" > "/tmp/$SMOKE_APP-smoke.log" 2>&1 &
+              app_pid=$!
+              trap '\''cat "/tmp/$SMOKE_APP-smoke.log"; kill "$app_pid" 2>/dev/null || true'\'' EXIT
+              echo "Checking visible window for $SMOKE_APP (PID $app_pid)"
+              window_found=false
+              for attempt in $(seq 1 60); do
+                kill -0 "$app_pid"
+                for window in $(xdotool search --onlyvisible --name "." 2>/dev/null || true); do
+                  candidate=$(xdotool getwindowpid "$window" 2>/dev/null) || continue
+                  while test "$candidate" -gt 1 && test -r "/proc/$candidate/status"; do
+                    if test "$candidate" = "$app_pid"; then
+                      echo "Visible app window $window (process family $app_pid)"
+                      window_found=true
+                      break
+                    fi
+                    candidate=$(awk "/^PPid:/ {print \$2}" "/proc/$candidate/status")
+                  done
+                  if test "$window_found" = true; then break; fi
+                done
+                if test "$window_found" = true; then break; fi
+                sleep 1
+              done
+              test "$window_found" = true
+              sleep 5
+              kill -0 "$app_pid"
+            '
+          done
       - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         with:

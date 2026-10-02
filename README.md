@@ -1,6 +1,6 @@
-# Kasm Linux-Desktop mit Thunderbird, Nextcloud und Chrome
+# Kasm Linux-Desktop mit Thunderbird, Nextcloud, Chrome und KI-Apps
 
-Ein vollständiger Ubuntu-22.04/XFCE-Desktop für **Kasm 1.18.0, linux/amd64**.
+Ein vollständiger Ubuntu-24.04/XFCE-Desktop für **Kasm 1.18.0, linux/amd64**.
 Thunderbird und der Nextcloud-Desktop-Client starten beim Sitzungsbeginn.
 Google Chrome ist zusätzlich über das Anwendungsmenü und eine Desktop-Verknüpfung verfügbar.
 Firefox ist für die Nextcloud-Anmeldung und Weblinks installiert.
@@ -12,11 +12,15 @@ Konten werden beim ersten Start im Desktop eingerichtet.
 
 | Bestandteil | Quelle |
 | --- | --- |
-| Desktop / KasmVNC | `kasmweb/core-ubuntu-jammy:1.18.0-rolling-weekly` |
-| Thunderbird + Deutsch | Ubuntu Jammy DEB-Pakete |
+| Desktop / KasmVNC | `kasmweb/core-ubuntu-noble:1.18.0-rolling-weekly` |
+| Thunderbird + Deutsch | Mozilla-Team-PPA (DEB, ohne Snap) |
 | Nextcloud-Desktop + Übersetzungen | Nextcloud-Client-PPA |
 | Firefox + Deutsch | Signiertes Mozilla-DEB-Repository |
 | Google Chrome Stable | Signiertes Google-DEB-Repository (amd64) |
+| Tabby Terminal | Upstream-DEB v1.0.237 mit SHA-256-Prüfung |
+| ChatGPT Desktop (Linux Preview) | Offizielles OpenAI-amd64-DEB |
+| Claude Desktop (Linux Beta) | Signiertes Anthropic-APT-Repository |
+| LibreOffice + Deutsch | Ubuntu Noble DEB-Pakete (Writer, Calc, Impress u. a.) |
 | Schlüsselbund | GNOME Keyring und Seahorse |
 
 Das Image ist auch für **Kasm 1.18.1** geeignet: laut den
@@ -107,6 +111,30 @@ startet Chrome im Container mit `--no-sandbox`; die Docker-Isolation bleibt
 bestehen. Chrome-Warnungen werden nicht unterdrückt. Firefox bleibt der
 Standardbrowser; Chrome startet auf Wunsch aus dem Menü.
 
+### LibreOffice
+
+LibreOffice einschließlich Writer, Calc und Impress ist mit deutscher Oberfläche
+installiert. Die Programme starten aus dem Anwendungsmenü. Der Build prüft
+zusätzlich eine PDF-Konvertierung eines Testdokuments.
+
+### Tabby, ChatGPT und Claude
+
+Alle drei Apps starten auf Wunsch aus dem Anwendungsmenü. Bei neuen Profilen
+stehen zusätzlich Desktop-Verknüpfungen bereit. Konten und SSH-Verbindungen
+richtest du selbst ein; das Image enthält keine Zugangsdaten.
+
+Die Basis ist jetzt Ubuntu 24.04, eine offiziell unterstützte Distribution der
+ChatGPT-Linux-Vorschau. Die Apps sind echte Hersteller-Desktop-Apps. Funktionen,
+die zusätzliche VMs oder Host-Geräte voraussetzen, sind im Kasm-Container nicht
+automatisch verfügbar. Computer Use ist in beiden Linux-Apps derzeit noch
+nicht verfügbar. Geprüft werden die sichtbaren Startfenster ohne Anmeldung.
+
+Die Electron-Apps verwenden den Container-Startmodus `--no-sandbox` analog zu
+Kasm-Chrome. Es werden keine Docker-Sicherheitsoptionen gelockert. App-Daten
+unter dem Benutzer-Home bleiben im persistenten Profil. Tabby ist fest auf die
+oben genannte Release-Version gesetzt; die anderen DEB-Pakete werden beim Build
+aktualisiert. Laufende Sitzungen übernehmen die neuen Apps erst nach Neuerstellung.
+
 ### Autostart steuern
 
 Beide Anwendungen starten standardmäßig automatisch. Unter **Docker Run Config
@@ -165,3 +193,7 @@ Kasm-Installation. Vor produktiver Nutzung:
 - [Mozilla: Firefox-DEB-Installation](https://support.mozilla.org/de/kb/firefox-unter-linux-installieren)
 
 - [Google: Linux-Pakete und Signaturschlüssel](https://www.google.com/linuxrepositories/)
+
+- [ChatGPT: offizielle Linux-Installation](https://learn.chatgpt.com/docs/linux/linux-app)
+- [Claude: offizielle Linux-Installation](https://support.claude.com/en/articles/10065433-install-claude-desktop)
+- [Tabby v1.0.237](https://github.com/Eugeny/tabby/releases/tag/v1.0.237)
