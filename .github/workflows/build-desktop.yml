@@ -54,7 +54,7 @@ jobs:
             test -w "$HOME"
             test -x /dockerstartup/custom_startup.sh
             test -x /dockerstartup/set_user_permission.sh
-            for app in thunderbird nextcloud firefox google-chrome tabby chatgpt claude-desktop; do command -v "$app"; done
+            for app in thunderbird nextcloud firefox google-chrome tabby chatgpt claude-desktop libreoffice; do command -v "$app"; done
             cat /etc/workspace-app-versions.txt
             test -x /home/kasm-default-profile/Desktop/thunderbird.desktop
             test -x /home/kasm-default-profile/Desktop/nextcloud.desktop
@@ -84,6 +84,13 @@ jobs:
           done
           echo 'Desktop applications did not start within 120 seconds' >&2
           exit 1
+      - name: Verify LibreOffice document conversion
+        run: |
+          docker run --rm --entrypoint bash workspace-check:local -euc '
+            printf "LibreOffice Test\n" > /tmp/office-smoke.txt
+            timeout 45 libreoffice -env:UserInstallation=file:///tmp/office-smoke-profile --headless --convert-to pdf --outdir /tmp /tmp/office-smoke.txt
+            test -s /tmp/office-smoke.pdf
+          '
       - name: Verify Tabby and AI desktop windows
         run: |
           docker run -d --name extra-app-smoke --shm-size=512m -e VNC_PW=ci-smoke-only workspace-check:local
