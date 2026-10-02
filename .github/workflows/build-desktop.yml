@@ -54,10 +54,11 @@ jobs:
             test -w "$HOME"
             test -x /dockerstartup/custom_startup.sh
             test -x /dockerstartup/set_user_permission.sh
-            for app in thunderbird nextcloud firefox; do command -v "$app"; done
+            for app in thunderbird nextcloud firefox google-chrome; do command -v "$app"; done
             cat /etc/workspace-app-versions.txt
             test -x /home/kasm-default-profile/Desktop/thunderbird.desktop
             test -x /home/kasm-default-profile/Desktop/nextcloud.desktop
+            test -x /home/kasm-default-profile/Desktop/google-chrome.desktop
             locale -a | grep -qi "de_DE.utf8"
           '
       - name: Record image versions
@@ -70,6 +71,10 @@ jobs:
           trap 'docker logs --tail 100 desktop-smoke; docker rm -f desktop-smoke' EXIT
           for attempt in $(seq 1 60); do
             if docker exec desktop-smoke bash -c 'pgrep -x thunderbird && pgrep -x nextcloud'; then
+              docker exec desktop-smoke bash -euc '
+                timeout 30 google-chrome --headless --disable-gpu --dump-dom about:blank > /tmp/chrome-smoke.html
+                grep -q "<html" /tmp/chrome-smoke.html
+              '
               exit 0
             fi
             sleep 2
