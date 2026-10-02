@@ -20,20 +20,48 @@ printf '%s\n' \
     'Package: firefox*' 'Pin: origin packages.mozilla.org' 'Pin-Priority: 1001' \
     > /etc/apt/preferences.d/mozilla
 
+# Google's signing key is scoped to its Chrome repository.
+curl --fail --silent --show-error --location \
+    https://dl.google.com/linux/linux_signing_key.pub \
+    --output /etc/apt/keyrings/google-chrome.asc
+gpg --batch --show-keys --with-colons /etc/apt/keyrings/google-chrome.asc \
+    | awk -F: '$1 == "fpr" {print $10}' \
+    | grep -qx 'EB4C1BFD4F042F6DDDCCEC917721F63BD38B4796'
+printf '%s\n' \
+    'deb [arch=amd64 signed-by=/etc/apt/keyrings/google-chrome.asc] https://dl.google.com/linux/chrome/deb/ stable main' \
+    > /etc/apt/sources.list.d/google-chrome.list
+
 # Nextcloud's client PPA provides newer clients than Jammy's 3.4 package.
 add-apt-repository -y ppa:nextcloud-devs/client
 apt-get update
 apt-get install -y --no-install-recommends \
     thunderbird thunderbird-locale-de \
     nextcloud-desktop nextcloud-desktop-l10n \
-    firefox firefox-l10n-de \
+    firefox firefox-l10n-de google-chrome-stable \
     gnome-keyring seahorse libsecret-1-0 dbus-x11 xdg-utils
 
 locale-gen de_DE.UTF-8
 update-locale LANG=de_DE.UTF-8
 
+# Kasm's official Chrome image uses --no-sandbox inside the isolated container.
+# Keep Chrome's credential storage on the desktop keyring and retain warnings.
+cat > /usr/local/bin/google-chrome <<'CHROME'
+#!/usr/bin/env bash
+set -euo pipefail
+if ! pgrep -u "$(id -u)" -x chrome >/dev/null; then
+    rm -f "$HOME/.config/google-chrome/SingletonLock" \
+        "$HOME/.config/google-chrome/SingletonSocket" \
+        "$HOME/.config/google-chrome/SingletonCookie"
+fi
+exec /usr/bin/google-chrome-stable --no-sandbox --no-first-run "$@"
+CHROME
+chmod 755 /usr/local/bin/google-chrome
+# Ensure menu entries use the same container-compatible launcher.
+sed -i 's@Exec=/usr/bin/google-chrome-stable@Exec=/usr/local/bin/google-chrome@g' \
+    /usr/share/applications/google-chrome.desktop
+
 mkdir -p "$HOME/Desktop"
-for application in thunderbird firefox; do
+for application in thunderbird firefox google-chrome; do
     install -m 0755 "/usr/share/applications/$application.desktop" "$HOME/Desktop/$application.desktop"
     chown 1000:1000 "$HOME/Desktop/$application.desktop"
 done
@@ -64,6 +92,6 @@ MIME
 rm -f /etc/xdg/autostart/nextcloud.desktop /etc/xdg/autostart/org.nextcloud.Nextcloud.desktop
 
 dpkg-query -W -f='${Package}\t${Version}\n' \
-    thunderbird nextcloud-desktop firefox > /etc/workspace-app-versions.txt
+    thunderbird nextcloud-desktop firefox google-chrome-stable > /etc/workspace-app-versions.txt
 apt-get clean
 rm -rf /var/lib/apt/lists/*
