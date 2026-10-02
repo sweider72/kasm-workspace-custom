@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=kasmweb/core-ubuntu-jammy:1.18.0-rolling-weekly
+ARG BASE_IMAGE=kasmweb/core-ubuntu-noble:1.18.0-rolling-weekly
 FROM ${BASE_IMAGE}
 
 USER root
