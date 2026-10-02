@@ -1,7 +1,8 @@
-# Kasm Linux-Desktop mit Thunderbird und Nextcloud
+# Kasm Linux-Desktop mit Thunderbird, Nextcloud und Chrome
 
 Ein vollständiger Ubuntu-22.04/XFCE-Desktop für **Kasm 1.18.0, linux/amd64**.
 Thunderbird und der Nextcloud-Desktop-Client starten beim Sitzungsbeginn.
+Google Chrome ist zusätzlich über das Anwendungsmenü und eine Desktop-Verknüpfung verfügbar.
 Firefox ist für die Nextcloud-Anmeldung und Weblinks installiert.
 
 Dies ist ein Kasm-Container mit Linux-Desktop, keine eigenständige VM.
@@ -15,6 +16,7 @@ Konten werden beim ersten Start im Desktop eingerichtet.
 | Thunderbird + Deutsch | Ubuntu Jammy DEB-Pakete |
 | Nextcloud-Desktop + Übersetzungen | Nextcloud-Client-PPA |
 | Firefox + Deutsch | Signiertes Mozilla-DEB-Repository |
+| Google Chrome Stable | Signiertes Google-DEB-Repository (amd64) |
 | Schlüsselbund | GNOME Keyring und Seahorse |
 
 Das Image ist auch für **Kasm 1.18.1** geeignet: laut den
@@ -31,7 +33,7 @@ nicht zum Image. Die beim Build installierten Versionen stehen in
 
 Der Workflow baut ausschließlich amd64 und prüft Shell-Skripte,
 Benutzerrechte, installierte Programme und den automatischen Start der beiden
-Anwendungen in einem Testcontainer.
+Anwendungen sowie Chrome im Headless-Modus in einem Testcontainer.
 
 - Pull Requests: bauen und prüfen; kein Registry-Upload.
 - Nach Übernahme nach `main`: das erfolgreich getestete Image nach GHCR hochladen.
@@ -92,6 +94,19 @@ selektiv synchronisieren und genügend Speicherplatz am Agent vorsehen.
 Dasselbe Thunderbird-Profil oder denselben Nextcloud-Synchronisierungsordner
 nicht gleichzeitig in mehreren aktiven Sitzungen verwenden.
 
+### Google Chrome
+
+Chrome wird bei jeder neuen Sitzung aus dem Image bereitgestellt. Bereits
+laufende Sitzungen behalten ihren bisherigen Softwarestand. Das Chrome-Profil
+liegt unter `/home/kasm-user/.config/google-chrome` im persistenten Benutzerprofil.
+Bei vorhandenen Profilen ist Chrome auch dann über das Anwendungsmenü verfügbar,
+wenn neue Desktop-Verknüpfungen nicht ins bestehende Profil kopiert werden.
+
+Wie im [offiziellen Kasm-Chrome-Image](https://github.com/kasmtech/workspaces-images/blob/develop/src/ubuntu/install/chrome/install_chrome.sh)
+startet Chrome im Container mit `--no-sandbox`; die Docker-Isolation bleibt
+bestehen. Chrome-Warnungen werden nicht unterdrückt. Firefox bleibt der
+Standardbrowser; Chrome startet auf Wunsch aus dem Menü.
+
 ### Autostart steuern
 
 Beide Anwendungen starten standardmäßig automatisch. Unter **Docker Run Config
@@ -148,3 +163,5 @@ Kasm-Installation. Vor produktiver Nutzung:
 - [Kasm: Workspace-Konfiguration und persistente Profile](https://docs.kasm.com/docs/1.18.0/guide/workspaces)
 - [Nextcloud: Client-PPA für Ubuntu](https://launchpad.net/~nextcloud-devs/+archive/ubuntu/client)
 - [Mozilla: Firefox-DEB-Installation](https://support.mozilla.org/de/kb/firefox-unter-linux-installieren)
+
+- [Google: Linux-Pakete und Signaturschlüssel](https://www.google.com/linuxrepositories/)
