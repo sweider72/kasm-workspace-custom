@@ -141,6 +141,18 @@ DESKTOP
     chown 1000:1000 "$HOME/Desktop/kasm-$application.desktop"
 done
 
+# LibreOffice needs its own library directory in the Kasm environment.
+# Scope this to its launcher, as in Kasm's official LibreOffice image.
+test -f /usr/lib/libreoffice/program/libreglo.so
+cat > /usr/local/bin/libreoffice <<'OFFICE'
+#!/usr/bin/env bash
+export LD_LIBRARY_PATH=/usr/lib/libreoffice/program:/usr/lib/x86_64-linux-gnu
+exec /usr/bin/libreoffice "$@"
+OFFICE
+chmod 755 /usr/local/bin/libreoffice
+sed -i 's@Exec=libreoffice@Exec=/usr/local/bin/libreoffice@g' \
+    /usr/share/applications/libreoffice-*.desktop
+
 for application in libreoffice-startcenter libreoffice-writer libreoffice-calc libreoffice-impress; do
     install -m 0755 "/usr/share/applications/$application.desktop" \
         "$HOME/Desktop/$application.desktop"
