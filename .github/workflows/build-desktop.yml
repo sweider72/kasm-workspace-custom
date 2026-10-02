@@ -105,11 +105,19 @@ jobs:
               window_found=false
               for attempt in $(seq 1 60); do
                 kill -0 "$app_pid"
-                if xdotool search --onlyvisible --pid "$app_pid" > /tmp/app-window-id 2>/tmp/app-window-error; then
-                  cat /tmp/app-window-id
-                  window_found=true
-                  break
-                fi
+                for window in $(xdotool search --onlyvisible --name "." 2>/dev/null || true); do
+                  candidate=$(xdotool getwindowpid "$window" 2>/dev/null) || continue
+                  while test "$candidate" -gt 1 && test -r "/proc/$candidate/status"; do
+                    if test "$candidate" = "$app_pid"; then
+                      echo "Visible app window $window (process family $app_pid)"
+                      window_found=true
+                      break
+                    fi
+                    candidate=$(awk "/^PPid:/ {print \$2}" "/proc/$candidate/status")
+                  done
+                  if test "$window_found" = true; then break; fi
+                done
+                if test "$window_found" = true; then break; fi
                 sleep 1
               done
               test "$window_found" = true
