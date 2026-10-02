@@ -44,6 +44,8 @@ jobs:
           platforms: linux/amd64
           pull: true
           load: true
+          cache-from: type=gha,scope=linux-desktop-amd64
+          cache-to: type=gha,mode=max,scope=linux-desktop-amd64
           tags: workspace-check:local
       - name: Verify installed apps and Kasm permissions
         run: |
@@ -101,7 +103,18 @@ jobs:
               "$SMOKE_APP" > "/tmp/$SMOKE_APP-smoke.log" 2>&1 &
               app_pid=$!
               trap '\''cat "/tmp/$SMOKE_APP-smoke.log"; kill "$app_pid" 2>/dev/null || true'\'' EXIT
-              timeout 45 xdotool search --sync --onlyvisible --pid "$app_pid"
+              echo "Checking visible window for $SMOKE_APP (PID $app_pid)"
+              window_found=false
+              for attempt in $(seq 1 60); do
+                kill -0 "$app_pid"
+                if xdotool search --onlyvisible --pid "$app_pid" > /tmp/app-window-id 2>/tmp/app-window-error; then
+                  cat /tmp/app-window-id
+                  window_found=true
+                  break
+                fi
+                sleep 1
+              done
+              test "$window_found" = true
               sleep 5
               kill -0 "$app_pid"
             '
