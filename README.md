@@ -20,6 +20,7 @@ Konten werden beim ersten Start im Desktop eingerichtet.
 | Tabby Terminal | Upstream-DEB v1.0.237 mit SHA-256-Prüfung |
 | ChatGPT Desktop (Linux Preview) | Offizielles OpenAI-amd64-DEB |
 | Claude Desktop (Linux Beta) | Signiertes Anthropic-APT-Repository |
+| LibreOffice + Deutsch | Ubuntu Noble DEB-Pakete (Writer, Calc, Impress u. a.) |
 | Schlüsselbund | GNOME Keyring und Seahorse |
 
 Das Image ist auch für **Kasm 1.18.1** geeignet: laut den
@@ -109,6 +110,12 @@ Wie im [offiziellen Kasm-Chrome-Image](https://github.com/kasmtech/workspaces-im
 startet Chrome im Container mit `--no-sandbox`; die Docker-Isolation bleibt
 bestehen. Chrome-Warnungen werden nicht unterdrückt. Firefox bleibt der
 Standardbrowser; Chrome startet auf Wunsch aus dem Menü.
+
+### LibreOffice
+
+LibreOffice einschließlich Writer, Calc und Impress ist mit deutscher Oberfläche
+installiert. Die Programme starten aus dem Anwendungsmenü. Der Build prüft
+zusätzlich eine PDF-Konvertierung eines Testdokuments.
 
 ### Tabby, ChatGPT und Claude
 
