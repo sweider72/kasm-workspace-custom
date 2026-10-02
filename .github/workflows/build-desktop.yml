@@ -44,8 +44,6 @@ jobs:
           platforms: linux/amd64
           pull: true
           load: true
-          cache-from: type=gha,scope=linux-desktop-amd64
-          cache-to: type=gha,mode=max,scope=linux-desktop-amd64
           tags: workspace-check:local
       - name: Verify installed apps and Kasm permissions
         run: |
