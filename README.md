@@ -17,9 +17,10 @@ Konten werden beim ersten Start im Desktop eingerichtet.
 | Firefox + Deutsch | Signiertes Mozilla-DEB-Repository |
 | Schlüsselbund | GNOME Keyring und Seahorse |
 
-Die Versionsangabe „1.18“ wird hier als **1.18.0** behandelt. Vor dem Einsatz
-die genaue Version in der Kasm-Administration prüfen. Bei 1.18.1 müssen Basis-Tag,
-Workflow-Image-Tag und die folgenden Beispiele gemeinsam angepasst werden.
+Das Image ist auch für **Kasm 1.18.1** geeignet: laut den
+[Kasm-Release-Notes](https://docs.kasm.com/docs/1.19.0/reference/release-notes/1.18.1)
+verwendet 1.18.1 standardmäßig die 1.18.0-Workspace-Images.
+Der Tag bleibt deshalb `1.18.0-rolling-weekly`.
 
 DEB-Pakete werden beim Image-Build aktualisiert. Änderungen an Konten,
 Dateien oder Anwendungen innerhalb einer Sitzung gehören zum Benutzerprofil,
