@@ -88,10 +88,7 @@ jobs:
         run: |
           docker run -d --name extra-app-smoke --shm-size=512m -e VNC_PW=ci-smoke-only workspace-check:local
           trap 'docker logs --tail 100 extra-app-smoke; docker rm -f extra-app-smoke' EXIT
-          for attempt in $(seq 1 60); do
-            if docker exec extra-app-smoke test -f /tmp/desktop_ready; then break; fi
-            sleep 2
-          done
+          docker exec extra-app-smoke timeout 120 /usr/bin/desktop_ready
           for app in tabby chatgpt claude-desktop; do
             docker exec -e SMOKE_APP="$app" extra-app-smoke bash -euc '
               "$SMOKE_APP" > "/tmp/$SMOKE_APP-smoke.log" 2>&1 &
