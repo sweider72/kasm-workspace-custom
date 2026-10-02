@@ -55,7 +55,8 @@ apt-get install -y --no-install-recommends \
     thunderbird thunderbird-locale-de \
     nextcloud-desktop nextcloud-desktop-l10n \
     firefox firefox-l10n-de google-chrome-stable \
-    gnome-keyring seahorse libsecret-1-0 dbus-x11 xdg-utils xdotool claude-desktop
+    gnome-keyring seahorse libsecret-1-0 dbus-x11 xdg-utils xdotool claude-desktop \
+    libreoffice libreoffice-l10n-de
 
 # Pin Tabby to an upstream release and verify GitHub's published SHA-256.
 curl --fail --silent --show-error --location \
@@ -140,6 +141,12 @@ DESKTOP
     chown 1000:1000 "$HOME/Desktop/kasm-$application.desktop"
 done
 
+for application in libreoffice-startcenter libreoffice-writer libreoffice-calc libreoffice-impress; do
+    install -m 0755 "/usr/share/applications/$application.desktop" \
+        "$HOME/Desktop/$application.desktop"
+    chown 1000:1000 "$HOME/Desktop/$application.desktop"
+done
+
 # Set the browser for the OAuth login flow in a newly created profile.
 mkdir -p "$HOME/.config"
 cat > "$HOME/.config/mimeapps.list" <<'MIME'
@@ -153,6 +160,6 @@ MIME
 rm -f /etc/xdg/autostart/nextcloud.desktop /etc/xdg/autostart/org.nextcloud.Nextcloud.desktop
 
 dpkg-query -W -f='${Package}\t${Version}\n' \
-    thunderbird nextcloud-desktop firefox google-chrome-stable tabby-terminal chatgpt claude-desktop > /etc/workspace-app-versions.txt
+    thunderbird nextcloud-desktop firefox google-chrome-stable tabby-terminal chatgpt claude-desktop libreoffice libreoffice-l10n-de > /etc/workspace-app-versions.txt
 apt-get clean
 rm -rf /var/lib/apt/lists/*
