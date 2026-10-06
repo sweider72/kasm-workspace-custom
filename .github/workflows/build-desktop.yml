@@ -54,7 +54,7 @@ jobs:
             test -w "$HOME"
             test -x /dockerstartup/custom_startup.sh
             test -x /dockerstartup/set_user_permission.sh
-            for app in thunderbird nextcloud firefox google-chrome tabby chatgpt claude-desktop libreoffice; do command -v "$app"; done
+            for app in thunderbird nextcloud firefox google-chrome tabby chatgpt claude-desktop obsidian libreoffice; do command -v "$app"; done
             thunderbird_version="$(dpkg-query -W -f='\''${Version}'\'' thunderbird)"
             dpkg --compare-versions "${thunderbird_version#*:}" ge 157.0.1~
             test "$(dpkg-query -W -f='\''${Status}'\'' thunderbird-l10n-de)" = "install ok installed"
@@ -63,7 +63,7 @@ jobs:
             test -x /home/kasm-default-profile/Desktop/thunderbird.desktop
             test -x /home/kasm-default-profile/Desktop/nextcloud.desktop
             test -x /home/kasm-default-profile/Desktop/google-chrome.desktop
-            for app in tabby chatgpt claude-desktop; do
+            for app in tabby chatgpt claude-desktop obsidian; do
               test -x "/home/kasm-default-profile/Desktop/kasm-$app.desktop"
             done
             locale -a | grep -qi "de_DE.utf8"
@@ -95,12 +95,12 @@ jobs:
             timeout 45 libreoffice -env:UserInstallation=file:///tmp/office-smoke-profile --headless --convert-to pdf --outdir /tmp /tmp/office-smoke.txt
             test -s /tmp/office-smoke.pdf
           '
-      - name: Verify Tabby and AI desktop windows
+      - name: Verify Tabby, AI desktop and Obsidian windows
         run: |
           docker run -d --name extra-app-smoke --shm-size=512m -e VNC_PW=ci-smoke-only workspace-check:local
           trap 'docker logs --tail 100 extra-app-smoke; docker rm -f extra-app-smoke' EXIT
           docker exec extra-app-smoke timeout 120 /usr/bin/desktop_ready
-          for app in tabby chatgpt claude-desktop; do
+          for app in tabby chatgpt claude-desktop obsidian; do
             docker exec -e SMOKE_APP="$app" extra-app-smoke bash -euc '
               "$SMOKE_APP" > "/tmp/$SMOKE_APP-smoke.log" 2>&1 &
               app_pid=$!

@@ -78,9 +78,18 @@ test "$(dpkg-deb --field /tmp/chatgpt.deb Architecture)" = amd64
 apt-get install -y --no-install-recommends /tmp/tabby.deb /tmp/chatgpt.deb
 rm -f /tmp/tabby.deb /tmp/chatgpt.deb
 
+# Pin Obsidian to the official amd64 DEB and verify the upstream SHA-256.
+curl --fail --silent --show-error --location \
+    'https://github.com/obsidianmd/obsidian-releases/releases/download/v1.14.4/obsidian_1.14.4_amd64.deb' --output /tmp/obsidian.deb
+printf '%s  %s\n' '85b10dcba6edfc1c0460a6d18260cf31c30447a444bd858a6440b9c9c8806d25' /tmp/obsidian.deb | sha256sum --check -
+test "$(dpkg-deb --field /tmp/obsidian.deb Architecture)" = amd64
+test "$(dpkg-deb --field /tmp/obsidian.deb Package)" = obsidian
+apt-get install -y --no-install-recommends /tmp/obsidian.deb
+rm -f /tmp/obsidian.deb
+
 # Electron apps use the same container launch mode as Kasm's Chrome image.
 # Launch on demand, without injecting account details or changing permissions.
-for application in tabby chatgpt claude-desktop; do
+for application in tabby chatgpt claude-desktop obsidian; do
     test -x "/usr/bin/$application"
     printf '%s\n' '#!/usr/bin/env bash' \
         "exec /usr/bin/$application --no-sandbox \"\$@\"" \
@@ -128,11 +137,12 @@ chmod 755 "$HOME/Desktop/nextcloud.desktop"
 chown 1000:1000 "$HOME/Desktop/nextcloud.desktop"
 
 # Menu entries also work for existing persistent profiles.
-for application in tabby chatgpt claude-desktop; do
+for application in tabby chatgpt claude-desktop obsidian; do
     case "$application" in
         tabby) title='Tabby'; category='System;TerminalEmulator;' ;;
         chatgpt) title='ChatGPT'; category='Network;' ;;
         claude-desktop) title='Claude'; category='Network;' ;;
+        obsidian) title='Obsidian'; category='Office;' ;;
     esac
     cat > "/usr/share/applications/kasm-$application.desktop" <<DESKTOP
 [Desktop Entry]
@@ -179,6 +189,6 @@ MIME
 rm -f /etc/xdg/autostart/nextcloud.desktop /etc/xdg/autostart/org.nextcloud.Nextcloud.desktop
 
 dpkg-query -W -f='${Package}\t${Version}\n' \
-    thunderbird nextcloud-desktop firefox google-chrome-stable tabby-terminal chatgpt claude-desktop libreoffice libreoffice-l10n-de > /etc/workspace-app-versions.txt
+    thunderbird nextcloud-desktop firefox google-chrome-stable tabby-terminal chatgpt claude-desktop obsidian libreoffice libreoffice-l10n-de > /etc/workspace-app-versions.txt
 apt-get clean
 rm -rf /var/lib/apt/lists/*

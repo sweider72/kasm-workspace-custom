@@ -21,6 +21,7 @@ Konten werden beim ersten Start im Desktop eingerichtet.
 | ChatGPT Desktop (Linux Preview) | Offizielles OpenAI-amd64-DEB |
 | Claude Desktop (Linux Beta) | Signiertes Anthropic-APT-Repository |
 | LibreOffice + Deutsch | Ubuntu Noble DEB-Pakete (Writer, Calc, Impress u. a.) |
+| Obsidian | Offizielles amd64-DEB v1.14.4 mit SHA-256-Prüfung |
 | Schlüsselbund | GNOME Keyring und Seahorse |
 
 Das Image ist auch für **Kasm 1.18.1** geeignet: laut den
@@ -155,6 +156,22 @@ Kasm-Chrome. Es werden keine Docker-Sicherheitsoptionen gelockert. App-Daten
 unter dem Benutzer-Home bleiben im persistenten Profil. Tabby ist fest auf die
 oben genannte Release-Version gesetzt; die anderen DEB-Pakete werden beim Build
 aktualisiert. Laufende Sitzungen übernehmen die neuen Apps erst nach Neuerstellung.
+
+### Obsidian
+
+Obsidian für Linux startet auf Wunsch aus dem Anwendungsmenü; neue Profile
+erhalten zusätzlich eine Desktop-Verknüpfung. Die offizielle Version 1.14.4
+wird als amd64-DEB mit SHA-256-Prüfung installiert. Der Build prüft auch das
+sichtbare Startfenster. Wie die anderen Electron-Apps verwendet Obsidian
+im Kasm-Container den Startmodus `--no-sandbox`.
+
+Vaults innerhalb von `/home/kasm-user` anlegen, damit sie zusammen mit der
+Obsidian-Konfiguration im persistenten Benutzerprofil erhalten bleiben.
+Vorhandene Vaults können über „Ordner als Vault öffnen“ ausgewählt werden.
+Laufende Sitzungen erhalten Obsidian nach Laden des neuen Images und
+Neuerstellung der Sitzung.
+
+Quelle: [Offizieller Obsidian-Download](https://obsidian.md/download).
 
 ### Autostart steuern
 
