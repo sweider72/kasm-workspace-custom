@@ -56,7 +56,7 @@ jobs:
             test -x /dockerstartup/set_user_permission.sh
             for app in thunderbird nextcloud firefox google-chrome tabby chatgpt claude-desktop libreoffice; do command -v "$app"; done
             thunderbird_version="$(dpkg-query -W -f='\''${Version}'\'' thunderbird)"
-            dpkg --compare-versions "${thunderbird_version#*:}" ge 157.0.1
+            dpkg --compare-versions "${thunderbird_version#*:}" ge 157.0.1~
             test "$(dpkg-query -W -f='\''${Status}'\'' thunderbird-l10n-de)" = "install ok installed"
             thunderbird --version
             cat /etc/workspace-app-versions.txt
