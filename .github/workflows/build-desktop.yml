@@ -75,7 +75,7 @@ jobs:
       - name: Verify desktop application startup
         run: |
           docker run -d --name desktop-smoke --shm-size=512m -e VNC_PW=ci-smoke-only workspace-check:local
-          trap 'docker logs --tail 100 desktop-smoke; docker exec desktop-smoke bash -c "cat /tmp/*startup*.log /tmp/*thunderbird*.log 2>/dev/null || true"; docker rm -f desktop-smoke' EXIT
+          trap 'docker logs desktop-smoke; docker exec desktop-smoke bash -c "ps -ef; cat /tmp/*startup*.log /tmp/*thunderbird*.log 2>/dev/null || true"; docker rm -f desktop-smoke' EXIT
           for attempt in $(seq 1 60); do
             if docker exec desktop-smoke bash -c 'pgrep -x thunderbird && pgrep -x nextcloud'; then
               docker exec desktop-smoke bash -euc '
