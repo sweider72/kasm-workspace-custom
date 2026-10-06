@@ -14,7 +14,7 @@ fi
 
 /usr/bin/desktop_ready
 
-if [[ "${AUTOSTART_THUNDERBIRD:-true}" == "true" ]] && ! pgrep -x thunderbird > /dev/null; then
+if [[ "${AUTOSTART_THUNDERBIRD:-true}" == "true" ]] && ! pgrep -x 'thunderbird|thunderbird-bin' > /dev/null; then
     thunderbird &
 fi
 if [[ "${AUTOSTART_NEXTCLOUD:-true}" == "true" ]] && ! pgrep -x nextcloud > /dev/null; then

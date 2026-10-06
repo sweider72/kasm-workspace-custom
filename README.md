@@ -13,7 +13,7 @@ Konten werden beim ersten Start im Desktop eingerichtet.
 | Bestandteil | Quelle |
 | --- | --- |
 | Desktop / KasmVNC | `kasmweb/core-ubuntu-noble:1.18.0-rolling-weekly` |
-| Thunderbird + Deutsch | Mozilla-Team-PPA (DEB, ohne Snap) |
+| Thunderbird + Deutsch | Signiertes Mozilla-DEB-Repository, Release-Kanal + thunderbird-l10n-de |
 | Nextcloud-Desktop + Übersetzungen | Nextcloud-Client-PPA |
 | Firefox + Deutsch | Signiertes Mozilla-DEB-Repository |
 | Google Chrome Stable | Signiertes Google-DEB-Repository (amd64) |
@@ -32,6 +32,27 @@ DEB-Pakete werden beim Image-Build aktualisiert. Änderungen an Konten,
 Dateien oder Anwendungen innerhalb einer Sitzung gehören zum Benutzerprofil,
 nicht zum Image. Die beim Build installierten Versionen stehen in
 `/etc/workspace-app-versions.txt` und im GitHub-Actions-Bericht.
+
+### Thunderbird-Updates
+
+Thunderbird wird aus dem offiziellen Mozilla-Repository im monatlichen
+Release-Kanal installiert, einschließlich deutscher Oberfläche. Jeder Neubau
+installiert die dort neueste verfügbare Version. Build und Prüfung verlangen
+mindestens Version 157.0.1; ein Rückfall auf die alte ESR-Reihe wird abgelehnt.
+
+Vor der ersten Sitzung mit der neuen Hauptversion das persistente
+Thunderbird-Profil bei beendeten Sitzungen sichern. Ein von der neuen Version
+aktualisiertes Profil kann nicht einfach mit Thunderbird 140 weiterverwendet
+werden. Erweiterungen und Senden/Empfangen nach dem Wechsel prüfen.
+
+Nach erfolgreicher Veröffentlichung das neue Image auf dem Kasm-Agent laden
+und die Sitzung neu erstellen. Vorhandene Sitzungen behalten die alte Version.
+Bei Bedarf den eindeutigen Lauf-Tag aus dem Build verwenden, damit kein lokal
+zwischengespeichertes Image mit dem bisherigen Haupt-Tag gestartet wird.
+Die tatsächlich installierte Version steht in
+`/etc/workspace-app-versions.txt` und im Actions-Bericht.
+
+Quelle: [Offizielle Thunderbird-DEB-Installation](https://support.mozilla.org/en-US/kb/installing-thunderbird-linux).
 
 ## GitHub-Build und Registry
 
