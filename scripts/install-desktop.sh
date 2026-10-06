@@ -42,21 +42,28 @@ printf '%s\n' \
     'deb [arch=amd64 signed-by=/etc/apt/keyrings/claude-desktop.asc] https://downloads.claude.ai/claude-desktop/apt/stable stable main' \
     > /etc/apt/sources.list.d/claude-desktop.list
 
-# Noble's Thunderbird package is a Snap; use the PPA used by Kasm itself.
-add-apt-repository -y ppa:mozillateam/ppa
+# Install the monthly Release channel from Mozilla's signed DEB repository.
 printf '%s\n' \
-    'Package: thunderbird*' 'Pin: release o=LP-PPA-mozillateam' 'Pin-Priority: 1001' \
+    'deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt thunderbird-deb main' \
+    > /etc/apt/sources.list.d/mozilla-thunderbird.list
+printf '%s\n' \
+    'Package: thunderbird*' 'Pin: origin packages.mozilla.org' 'Pin-Priority: 1001' \
     > /etc/apt/preferences.d/mozilla-thunderbird
 
 # Nextcloud's official client PPA.
 add-apt-repository -y ppa:nextcloud-devs/client
 apt-get update
 apt-get install -y --no-install-recommends \
-    thunderbird thunderbird-locale-de \
+    thunderbird thunderbird-l10n-de \
     nextcloud-desktop nextcloud-desktop-l10n \
     firefox firefox-l10n-de google-chrome-stable \
     gnome-keyring seahorse libsecret-1-0 dbus-x11 xdg-utils xdotool claude-desktop \
     libreoffice libreoffice-l10n-de
+
+# Reject the old ESR/Snap package and require the requested release or newer.
+thunderbird_version="$(dpkg-query -W -f='${Version}' thunderbird)"
+dpkg --compare-versions "$thunderbird_version" ge 157.0.1
+test "$(dpkg-query -W -f='${Status}' thunderbird-l10n-de)" = 'install ok installed'
 
 # Pin Tabby to an upstream release and verify GitHub's published SHA-256.
 curl --fail --silent --show-error --location \
