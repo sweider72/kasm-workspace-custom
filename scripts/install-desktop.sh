@@ -62,7 +62,7 @@ apt-get install -y --no-install-recommends \
 
 # Reject the old ESR/Snap package and require the requested release or newer.
 thunderbird_version="$(dpkg-query -W -f='${Version}' thunderbird)"
-dpkg --compare-versions "$thunderbird_version" ge 157.0.1
+dpkg --compare-versions "${thunderbird_version#*:}" ge 157.0.1
 test "$(dpkg-query -W -f='${Status}' thunderbird-l10n-de)" = 'install ok installed'
 
 # Pin Tabby to an upstream release and verify GitHub's published SHA-256.

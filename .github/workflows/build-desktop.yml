@@ -55,7 +55,8 @@ jobs:
             test -x /dockerstartup/custom_startup.sh
             test -x /dockerstartup/set_user_permission.sh
             for app in thunderbird nextcloud firefox google-chrome tabby chatgpt claude-desktop libreoffice; do command -v "$app"; done
-            dpkg --compare-versions "$(dpkg-query -W -f='\''${Version}'\'' thunderbird)" ge 157.0.1
+            thunderbird_version="$(dpkg-query -W -f='\''${Version}'\'' thunderbird)"
+            dpkg --compare-versions "${thunderbird_version#*:}" ge 157.0.1
             test "$(dpkg-query -W -f='\''${Status}'\'' thunderbird-l10n-de)" = "install ok installed"
             thunderbird --version
             cat /etc/workspace-app-versions.txt
@@ -74,7 +75,7 @@ jobs:
       - name: Verify desktop application startup
         run: |
           docker run -d --name desktop-smoke --shm-size=512m -e VNC_PW=ci-smoke-only workspace-check:local
-          trap 'docker logs --tail 100 desktop-smoke; docker rm -f desktop-smoke' EXIT
+          trap 'docker logs --tail 100 desktop-smoke; docker exec desktop-smoke bash -c "cat /tmp/*startup*.log /tmp/*thunderbird*.log 2>/dev/null || true"; docker rm -f desktop-smoke' EXIT
           for attempt in $(seq 1 60); do
             if docker exec desktop-smoke bash -c 'pgrep -x thunderbird && pgrep -x nextcloud'; then
               docker exec desktop-smoke bash -euc '
