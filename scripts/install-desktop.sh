@@ -58,7 +58,7 @@ apt-get install -y --no-install-recommends \
     nextcloud-desktop nextcloud-desktop-l10n \
     firefox firefox-l10n-de google-chrome-stable \
     gnome-keyring seahorse libsecret-1-0 dbus-x11 xdg-utils xdotool claude-desktop \
-    libreoffice libreoffice-l10n-de
+    libreoffice libreoffice-l10n-de flameshot
 
 # Reject the old ESR/Snap package and require the requested release or newer.
 thunderbird_version="$(dpkg-query -W -f='${Version}' thunderbird)"
@@ -189,6 +189,6 @@ MIME
 rm -f /etc/xdg/autostart/nextcloud.desktop /etc/xdg/autostart/org.nextcloud.Nextcloud.desktop
 
 dpkg-query -W -f='${Package}\t${Version}\n' \
-    thunderbird nextcloud-desktop firefox google-chrome-stable tabby-terminal chatgpt claude-desktop obsidian libreoffice libreoffice-l10n-de > /etc/workspace-app-versions.txt
+    thunderbird nextcloud-desktop firefox google-chrome-stable tabby-terminal chatgpt claude-desktop obsidian libreoffice libreoffice-l10n-de flameshot > /etc/workspace-app-versions.txt
 apt-get clean
 rm -rf /var/lib/apt/lists/*

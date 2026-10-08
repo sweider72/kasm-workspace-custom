@@ -54,10 +54,12 @@ jobs:
             test -w "$HOME"
             test -x /dockerstartup/custom_startup.sh
             test -x /dockerstartup/set_user_permission.sh
-            for app in thunderbird nextcloud firefox google-chrome tabby chatgpt claude-desktop obsidian libreoffice; do command -v "$app"; done
+            for app in thunderbird nextcloud firefox google-chrome tabby chatgpt claude-desktop obsidian libreoffice flameshot; do command -v "$app"; done
             thunderbird_version="$(dpkg-query -W -f='\''${Version}'\'' thunderbird)"
             dpkg --compare-versions "${thunderbird_version#*:}" ge 157.0.1~
             test "$(dpkg-query -W -f='\''${Status}'\'' thunderbird-l10n-de)" = "install ok installed"
+            flameshot --version
+            test -f /usr/share/applications/org.flameshot.Flameshot.desktop
             thunderbird --version
             cat /etc/workspace-app-versions.txt
             test -x /home/kasm-default-profile/Desktop/thunderbird.desktop
@@ -129,6 +131,22 @@ jobs:
               kill -0 "$app_pid"
             '
           done
+      - name: Verify Flameshot capture overlay
+        run: |
+          docker run -d --name flameshot-smoke --shm-size=512m -e VNC_PW=ci-smoke-only workspace-check:local
+          trap 'docker logs --tail 100 flameshot-smoke; docker exec flameshot-smoke cat /tmp/flameshot-smoke.log || true; docker rm -f flameshot-smoke' EXIT
+          docker exec flameshot-smoke timeout 120 /usr/bin/desktop_ready
+          docker exec flameshot-smoke bash -euc '
+            flameshot gui > /tmp/flameshot-smoke.log 2>&1 &
+            app_pid=$!
+            trap '\''kill "$app_pid" 2>/dev/null || true'\'' EXIT
+            for attempt in $(seq 1 30); do
+              kill -0 "$app_pid"
+              if xdotool search --onlyvisible --class flameshot; then exit 0; fi
+              sleep 1
+            done
+            exit 1
+          '
       - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         with:
