@@ -22,6 +22,7 @@ Konten werden beim ersten Start im Desktop eingerichtet.
 | Claude Desktop (Linux Beta) | Signiertes Anthropic-APT-Repository |
 | LibreOffice + Deutsch | Ubuntu Noble DEB-Pakete (Writer, Calc, Impress u. a.) |
 | Obsidian | Offizielles amd64-DEB v1.14.4 mit SHA-256-Prüfung |
+| Flameshot | Ubuntu Noble DEB-Paket, Screenshot-Werkzeug |
 | Schlüsselbund | GNOME Keyring und Seahorse |
 
 Das Image ist auch für **Kasm 1.18.1** geeignet: laut den
@@ -172,6 +173,15 @@ Laufende Sitzungen erhalten Obsidian nach Laden des neuen Images und
 Neuerstellung der Sitzung.
 
 Quelle: [Offizieller Obsidian-Download](https://obsidian.md/download).
+
+### Flameshot
+
+Flameshot ist über das Anwendungsmenü verfügbar, auch in vorhandenen persistenten
+Profilen. Für eine Bereichsaufnahme im Terminal `flameshot gui` starten.
+Aufnahmen innerhalb von `/home/kasm-user` speichern, damit sie im persistenten
+Profil erhalten bleiben. Flameshot erfasst den Kasm-Desktop; für Programme auf
+dem lokalen Rechner dessen eigenes Screenshot-Werkzeug verwenden.
+Eine laufende Sitzung nach dem Image-Update neu erstellen.
 
 ### Autostart steuern
 
